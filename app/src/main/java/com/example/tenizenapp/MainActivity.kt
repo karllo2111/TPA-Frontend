@@ -44,13 +44,23 @@ class MainActivity : AppCompatActivity() {
 
         btnSiswa = findViewById(R.id.btnSiswa)
         btnProduk = findViewById(R.id.btnProduk)
-        btnTransaksi = findViewById(R.id.btnTransaksi)
+//        btnTransaksi = findViewById(R.id.btnTransaksi)
         btnLogout = findViewById(R.id.btnLogout)
 
 
         btnSiswa.setOnClickListener{
             startActivity(Intent(this,SiswaActivity::class.java))
         }
+
+        btnProduk.setOnClickListener{
+            startActivity(Intent(this,ProdukActivity::class.java))
+        }
+
+        btnLogout.setOnClickListener{
+            startActivity(Intent(this,LoginActivity::class.java))
+        }
+
+
 
         // 3. Kalau sudah login, lanjut render UI
 

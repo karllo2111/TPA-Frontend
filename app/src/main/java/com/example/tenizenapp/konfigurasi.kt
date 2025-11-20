@@ -20,6 +20,7 @@ object Konfigurasi {
     const val URL_GET_ALL_PRODUK = BASE_URL + "tampil_produk.php"
     const val URL_ADD_PRODUK = BASE_URL + "tambah_produk.php"
     const val URL_DELETE_PRODUK = BASE_URL + "hapus_produk.php"
+    const val URL_UPDATE_PRODUK = BASE_URL + "update_produk.php"
 
     // Transaksi Endpoints
     const val URL_GET_ALL_TRANSAKSI = BASE_URL + "tampil_transaksi.php"

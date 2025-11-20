@@ -16,6 +16,15 @@
         android:theme="@style/Theme.TenizenApp"
         android:usesCleartextTraffic="true">
         <activity
+            android:name=".EditProdukActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TambahProdukActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProdukActivity"
+            android:exported="false" />
+        <activity
             android:name=".EditSiswaActivity"
             android:exported="false" />
         <activity

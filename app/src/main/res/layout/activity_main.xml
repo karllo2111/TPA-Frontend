@@ -25,11 +25,11 @@
         android:layout_height="wrap_content"
         android:text="Data Produk" />
 
-    <Button
-        android:id="@+id/btnTransaksi"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Data Transaksi" />
+<!--    <Button-->
+<!--        android:id="@+id/btnTransaksi"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Data Transaksi" />-->
 
     <Button
         android:id="@+id/btnLogout"

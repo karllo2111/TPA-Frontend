@@ -40,6 +40,38 @@ class RequestHandler {
         return response
     }
 
+    fun sendPostRequestJSON(url: String, json: String): String {
+        var response = ""
+        try {
+            val conn = URL(url).openConnection() as HttpURLConnection
+            conn.readTimeout = 15000
+            conn.connectTimeout = 15000
+            conn.requestMethod = "POST"
+            conn.doOutput = true
+            conn.setRequestProperty("Content-Type", "application/json")
+
+            conn.outputStream.use { os ->
+                val writer = OutputStreamWriter(os, "UTF-8")
+                writer.write(json)
+                writer.flush()
+                writer.close()
+            }
+
+            val reader = if (conn.responseCode < HttpURLConnection.HTTP_BAD_REQUEST)
+                BufferedReader(InputStreamReader(conn.inputStream))
+            else
+                BufferedReader(InputStreamReader(conn.errorStream))
+
+            response = reader.readText()
+            reader.close()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            response = "Exception: ${e.message}"
+        }
+        return response
+    }
+
     fun sendGetRequest(requestURL: String): String {
         var response = ""
         try {
