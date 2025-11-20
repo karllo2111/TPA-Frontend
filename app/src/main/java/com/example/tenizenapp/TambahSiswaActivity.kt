@@ -1,98 +1,109 @@
 package com.example.tenizenapp
 
-import android.os.AsyncTask
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TambahSiswaActivity : AppCompatActivity() {
 
-    private lateinit var etNIS: EditText
+    private lateinit var etNis: EditText
     private lateinit var etNama: EditText
-    private lateinit var etGender: EditText
+    private lateinit var spGender: Spinner
     private lateinit var etAlamat: EditText
-    private lateinit var etTglLahir: EditText
+    private lateinit var etTgLahir: EditText
+    private lateinit var etFoto: EditText
     private lateinit var btnSimpan: Button
+
+    private var selectedGender: String = ""
+    private val calendar = Calendar.getInstance()
+    private val requestHandler = RequestHandler()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tambah_siswa)
 
-        etNIS = findViewById(R.id.etNIS)
+        etNis = findViewById(R.id.etNIS)
         etNama = findViewById(R.id.etNama)
-        etGender = findViewById(R.id.etGender)
+        spGender = findViewById(R.id.spGender)
         etAlamat = findViewById(R.id.etAlamat)
-        etTglLahir = findViewById(R.id.etTglLahir)
+        etTgLahir = findViewById(R.id.etTglLahir)
+        etFoto = findViewById(R.id.etFoto)
         btnSimpan = findViewById(R.id.btnSimpan)
 
-        btnSimpan.setOnClickListener {
-            if (validateInput()) {
-                tambahSiswa()
+        setupGenderSpinner()
+        setupListeners()
+    }
+
+    private fun setupGenderSpinner() {
+        val adapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.jenis_kelamin_array,
+            android.R.layout.simple_spinner_item
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spGender.adapter = adapter
+
+        spGender.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: android.view.View?, position: Int, id: Long) {
+                selectedGender = parent.getItemAtPosition(position).toString()
             }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
 
-    private fun validateInput(): Boolean {
-        if (etNIS.text.isBlank()) {
-            etNIS.error = "NIS tidak boleh kosong"
-            return false
+    private fun setupListeners() {
+        etTgLahir.setOnClickListener {
+            val listener = DatePickerDialog.OnDateSetListener { _, year, month, day ->
+                calendar.set(year, month, day)
+                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                etTgLahir.setText(sdf.format(calendar.time))
+            }
+            DatePickerDialog(this, listener, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show()
         }
-        if (etNama.text.isBlank()) {
-            etNama.error = "Nama tidak boleh kosong"
-            return false
-        }
-        if (etGender.text.isBlank()) {
-            etGender.error = "Gender tidak boleh kosong"
-            return false
-        }
-        if (etAlamat.text.isBlank()) {
-            etAlamat.error = "Alamat tidak boleh kosong"
-            return false
-        }
-        if (etTglLahir.text.isBlank()) {
-            etTglLahir.error = "Tanggal lahir tidak boleh kosong"
-            return false
-        }
-        return true
+
+        btnSimpan.setOnClickListener { simpanData() }
     }
 
-    private fun tambahSiswa() {
-        val nis = etNIS.text.toString()
-        val name = etNama.text.toString()
-        val gender = etGender.text.toString()
-        val alamat = etAlamat.text.toString()
-        val tgllahir = etTglLahir.text.toString()
+    private fun simpanData() {
+        val nis = etNis.text.toString().trim()
+        val nama = etNama.text.toString().trim()
+        val alamat = etAlamat.text.toString().trim()
+        val tgllahir = etTgLahir.text.toString().trim()
+        val foto = etFoto.text.toString().trim()
 
-        TambahSiswaTask(nis, name, gender, alamat, tgllahir).execute()
-    }
-
-    private inner class TambahSiswaTask(
-        val nis: String,
-        val name: String,
-        val gender: String,
-        val alamat: String,
-        val tgllahir: String
-    ) : AsyncTask<Void, Void, String>() {
-
-        override fun doInBackground(vararg params: Void?): String {
-            val postData = HashMap<String, String>()
-            postData["nis"] = nis
-            postData["namasiswa"] = name
-            postData["gender"] = gender
-            postData["alamat"] = alamat
-            postData["tanggallahir"] = tgllahir
-
-            val requestHandler = RequestHandler()
-            return requestHandler.sendPostRequest(Konfigurasi.URL_ADD_SISWA, postData)
+        if (nis.isEmpty() || nama.isEmpty() || alamat.isEmpty() || tgllahir.isEmpty() || selectedGender.isEmpty()) {
+            Toast.makeText(this, "Semua field wajib diisi", Toast.LENGTH_LONG).show()
+            return
         }
 
-        override fun onPostExecute(result: String) {
-            super.onPostExecute(result)
-            if (result.contains("berhasil", ignoreCase = true)) {
-                Toast.makeText(this@TambahSiswaActivity, "Siswa berhasil ditambahkan", Toast.LENGTH_SHORT).show()
-                finish() // kembali ke SiswaActivity
-            } else {
-                Toast.makeText(this@TambahSiswaActivity, "Gagal menambahkan: $result", Toast.LENGTH_LONG).show()
+        val params = mapOf(
+            "nis" to nis,
+            "namasiswa" to nama,
+            "gender" to selectedGender,
+            "alamat" to alamat,
+            "tanggallahir" to tgllahir,
+            "foto" to foto
+        )
+
+        requestHandler.post(Konfigurasi.URL_ADD_SISWA, params) { response, error ->
+            runOnUiThread {
+                if (error != null) {
+                    Toast.makeText(this, "Gagal mengirim data: $error", Toast.LENGTH_LONG).show()
+                } else if (response != null && response.contains("berhasil", true)) {
+                    Toast.makeText(this, "Data siswa berhasil disimpan!", Toast.LENGTH_LONG).show()
+                    etNis.text.clear()
+                    etNama.text.clear()
+                    etAlamat.text.clear()
+                    etTgLahir.text.clear()
+                    spGender.setSelection(0)
+                    setResult(RESULT_OK)
+                    finish()
+                } else {
+                    Toast.makeText(this, "Gagal menyimpan: $response", Toast.LENGTH_LONG).show()
+                }
             }
         }
     }

@@ -85,6 +85,7 @@ class EditSiswaActivity : AppCompatActivity() {
             super.onPostExecute(result)
             if (result.contains("berhasil", ignoreCase = true)) {
                 Toast.makeText(this@EditSiswaActivity, "Update berhasil!", Toast.LENGTH_SHORT).show()
+                setResult(RESULT_OK)
                 finish()
             } else {
                 Toast.makeText(this@EditSiswaActivity, "Update gagal: $result", Toast.LENGTH_LONG).show()

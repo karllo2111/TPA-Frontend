@@ -6,17 +6,18 @@ import java.net.URL
 import java.net.URLEncoder
 
 class RequestHandler {
+
+    // --- KODE LAMA (synchronous) ---
     fun sendPostRequest(requestURL: String, postDataParams: HashMap<String, String>): String {
-        val url: URL
         var response = ""
         try {
-            url = URL(requestURL)
-            val conn = url.openConnection() as HttpURLConnection
+            val conn = URL(requestURL).openConnection() as HttpURLConnection
             conn.readTimeout = 15000
             conn.connectTimeout = 15000
             conn.requestMethod = "POST"
-            conn.doInput = true
             conn.doOutput = true
+            conn.doInput = true
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
 
             val os = conn.outputStream
             val writer = BufferedWriter(OutputStreamWriter(os, "UTF-8"))
@@ -25,45 +26,77 @@ class RequestHandler {
             writer.close()
             os.close()
 
-            val responseCode = conn.responseCode
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                val br = BufferedReader(InputStreamReader(conn.inputStream))
-                response = br.readText()
-            } else {
-                response = "Error: $responseCode"
-            }
+            val reader = if (conn.responseCode < HttpURLConnection.HTTP_BAD_REQUEST)
+                BufferedReader(InputStreamReader(conn.inputStream))
+            else
+                BufferedReader(InputStreamReader(conn.errorStream))
+
+            response = reader.readText()
+            reader.close()
         } catch (e: Exception) {
             e.printStackTrace()
+            response = "Exception: ${e.message}"
         }
         return response
     }
 
     fun sendGetRequest(requestURL: String): String {
-        val sb = StringBuilder()
+        var response = ""
         try {
-            val url = URL(requestURL)
-            val conn = url.openConnection() as HttpURLConnection
-            val inputStream = BufferedInputStream(conn.inputStream)
-            val br = BufferedReader(InputStreamReader(inputStream))
-            var line: String?
-            while (br.readLine().also { line = it } != null) {
-                sb.append(line).append("\n")
-            }
+            val conn = URL(requestURL).openConnection() as HttpURLConnection
+            conn.requestMethod = "GET"
+            val reader = if (conn.responseCode < HttpURLConnection.HTTP_BAD_REQUEST)
+                BufferedReader(InputStreamReader(conn.inputStream))
+            else
+                BufferedReader(InputStreamReader(conn.errorStream))
+
+            response = reader.readText()
+            reader.close()
         } catch (e: Exception) {
             e.printStackTrace()
+            response = "Exception: ${e.message}"
         }
-        return sb.toString()
+        return response
     }
 
-    private fun getPostDataString(params: HashMap<String, String>): String {
-        val result = StringBuilder()
-        var first = true
-        for ((key, value) in params) {
-            if (first) first = false else result.append("&")
-            result.append(URLEncoder.encode(key, "UTF-8"))
-            result.append("=")
-            result.append(URLEncoder.encode(value, "UTF-8"))
+    private fun getPostDataString(params: Map<String, String>): String {
+        return params.entries.joinToString("&") { (k, v) ->
+            "${URLEncoder.encode(k, "UTF-8")}=${URLEncoder.encode(v, "UTF-8")}"
         }
-        return result.toString()
+    }
+
+    // --- KODE BARU (asynchronous) ---
+    fun post(
+        url: String,
+        params: Map<String, String>,
+        callback: (response: String?, error: String?) -> Unit
+    ) {
+        Thread {
+            try {
+                val conn = URL(url).openConnection() as HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.doOutput = true
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+
+                val os = conn.outputStream
+                val writer = BufferedWriter(OutputStreamWriter(os, "UTF-8"))
+                writer.write(getPostDataString(params))
+                writer.flush()
+                writer.close()
+                os.close()
+
+                val reader = if (conn.responseCode < HttpURLConnection.HTTP_BAD_REQUEST)
+                    BufferedReader(InputStreamReader(conn.inputStream))
+                else
+                    BufferedReader(InputStreamReader(conn.errorStream))
+
+                val response = reader.readText()
+                reader.close()
+                callback(response, null)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                callback(null, e.message)
+            }
+        }.start()
     }
 }
