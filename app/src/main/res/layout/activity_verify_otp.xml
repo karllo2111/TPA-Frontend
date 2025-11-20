@@ -1,38 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <TextView
+        android:id="@+id/tvInfo"
+        android:text="Masukkan kode OTP yang dikirim ke email Anda"
+        android:textSize="16sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Masukkan OTP"
-        android:textSize="18sp"
-        android:layout_marginBottom="10dp" />
+        android:paddingBottom="16dp"/>
 
     <EditText
         android:id="@+id/etOtp"
+        android:hint="OTP"
+        android:inputType="number"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Kode OTP"
-        android:inputType="number" />
+        android:layout_height="wrap_content"/>
 
     <Button
         android:id="@+id/btnVerify"
+        android:text="Verifikasi"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Verifikasi"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"/>
 
     <TextView
         android:id="@+id/tvResend"
+        android:text="Kirim ulang OTP"
+        android:textColor="@android:color/holo_blue_dark"
+        android:textSize="14sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Kirim ulang OTP"
-        android:textColor="#0000FF"
-        android:layout_marginTop="10dp" />
+        android:paddingTop="16dp"/>
 
+    <TextView
+        android:id="@+id/tvInfo2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="#FF0000"
+        android:textSize="14sp"
+        android:paddingTop="8dp"/>
 </LinearLayout>

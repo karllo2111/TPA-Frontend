@@ -37,7 +37,7 @@
             android:name=".SiswaActivity"
             android:exported="false" />
         <activity
-            android:name=".activity_register"
+            android:name=".RegisterActivity"
             android:exported="false" /> <!-- <activity -->
         <!-- android:name=".activity_main" -->
         <!-- android:exported="false" /> -->

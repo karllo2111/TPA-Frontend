@@ -44,4 +44,11 @@
         android:text="Register"
         android:padding="12dp" />
 
+    <TextView
+        android:id="@+id/tvLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sudah punya akun? Login di sini"
+        android:textColor="@color/blue" />
+
 </LinearLayout>

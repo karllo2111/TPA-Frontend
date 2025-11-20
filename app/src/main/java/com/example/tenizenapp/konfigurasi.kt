@@ -8,6 +8,7 @@ object Konfigurasi {
     const val URL_LOGIN = BASE_URL + "login.php"
     const val URL_REGISTER = BASE_URL + "register.php"
     const val URL_VERIFY_OTP = BASE_URL + "verify_otp.php"
+    const val URL_RESEND_OTP = BASE_URL + "resend_otp.php"
 
     // Siswa Endpoints
     const val URL_GET_ALL_SISWA = BASE_URL + "tampil_siswa.php"
